@@ -1,0 +1,142 @@
+---
+# Source: chart-demo/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: demo-sa
+  labels:
+    helm.sh/chart: chart-demo-0.1.0
+    app.kubernetes.io/name: chart-demo
+    app.kubernetes.io/instance: demo
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: chart-demo/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-chart-demo
+  labels:
+    helm.sh/chart: chart-demo-0.1.0
+    app.kubernetes.io/name: chart-demo
+    app.kubernetes.io/instance: demo
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: chart-demo
+    app.kubernetes.io/instance: demo
+---
+# Source: chart-demo/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-chart-demo
+  labels:
+    helm.sh/chart: chart-demo-0.1.0
+    app.kubernetes.io/name: chart-demo
+    app.kubernetes.io/instance: demo
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chart-demo
+      app.kubernetes.io/instance: demo
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: chart-demo-0.1.0
+        app.kubernetes.io/name: chart-demo
+        app.kubernetes.io/instance: demo
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: demo-sa
+      securityContext:
+        {}
+      containers:
+        - name: chart-demo
+          securityContext:
+            {}
+          image: "nginx:1.16.0"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+# Source: chart-demo/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: demo-chart-demo
+  labels:
+    helm.sh/chart: chart-demo-0.1.0
+    app.kubernetes.io/name: chart-demo
+    app.kubernetes.io/instance: demo
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: demo-chart-demo
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# Source: chart-demo/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "demo-chart-demo-test-connection"
+  labels:
+    helm.sh/chart: chart-demo-0.1.0
+    app.kubernetes.io/name: chart-demo
+    app.kubernetes.io/instance: demo
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['demo-chart-demo:8080']
+  restartPolicy: Never
