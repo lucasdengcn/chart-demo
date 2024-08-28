@@ -66,9 +66,18 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: [{{ include "chart-demo.name" . | quote }}]
+            topologyKey: "kubernetes.io/hostname"
+      {{- with .Values.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:

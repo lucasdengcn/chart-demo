@@ -220,6 +220,15 @@ spec:
             requests:
               cpu: 100m
               memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["order-service-blue"]
+            topologyKey: "kubernetes.io/hostname"
 ---
 # Source: chart-demo/charts/order-service-green/templates/deployment.yaml
 apiVersion: apps/v1
@@ -283,6 +292,15 @@ spec:
             requests:
               cpu: 100m
               memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["order-service-green"]
+            topologyKey: "kubernetes.io/hostname"
 ---
 # Source: chart-demo/charts/payment-service-blue/templates/deployment.yaml
 apiVersion: apps/v1
@@ -346,6 +364,15 @@ spec:
             requests:
               cpu: 100m
               memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["payment-service-blue"]
+            topologyKey: "kubernetes.io/hostname"
 ---
 # Source: chart-demo/charts/order-service-blue/templates/hpa.yaml
 apiVersion: autoscaling/v2

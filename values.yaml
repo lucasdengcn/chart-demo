@@ -108,9 +108,6 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: {}  
-
-
 # Additional volumes on the output Deployment definition.
 volumes: []
 # - name: foo
@@ -130,11 +127,4 @@ podAnnotations: {}
 
 podLabels: {}
 
-# image:
-#   repository: nginx
-#   pullPolicy: IfNotPresent
-#   # Overrides the image tag whose default is the chart appVersion.
-#   tag: ""
-
-# nameOverride: ""
-# fullnameOverride: ""
+podAffinity: {}

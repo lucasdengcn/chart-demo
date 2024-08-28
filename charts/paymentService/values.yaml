@@ -106,9 +106,7 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: {}
-# podAffinity: {}
-# podAntiAffinity: {}
+podAffinity: {}
 
 
 envVars:

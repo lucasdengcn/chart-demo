@@ -106,9 +106,13 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: {}
-# podAffinity: {}
-# podAntiAffinity: {}
+podAffinity: {}
+  # requiredDuringSchedulingIgnoredDuringExecution:
+  #   nodeSelectorTerms:
+  #   - matchExpressions:
+  #     - key: "kubernetes.io/os"
+  #       operator: In
+  #       values: Linux
 
 
 envVars:
