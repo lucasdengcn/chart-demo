@@ -1,20 +1,25 @@
+{{- define "chart-demo.deploymentTemplate" -}}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "chart-demo.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     {{- include "chart-demo.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.global.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
       {{- include "chart-demo.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      namespace: {{ .Values.global.namespace }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
@@ -23,7 +28,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -36,6 +41,9 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+          - configMapRef:
+              name: {{ include "chart-demo.fullname" . }}-configmap
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -66,3 +74,6 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
+
+{{- end }}

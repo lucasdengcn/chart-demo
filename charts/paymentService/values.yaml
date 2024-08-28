@@ -1,11 +1,13 @@
-# Default values for chart-demo.
+# Default values for order-service.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-global:
-  namespace: demo
-  replicaCount: 1
-  imagePullSecrets: []
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.0"
+
 
 nameOverride: ""
 fullnameOverride: ""
@@ -19,7 +21,13 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: "demo"
+  name: ""
+
+podAnnotations: 
+  version: blue
+
+podLabels:
+  version: blue
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -34,7 +42,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 80
   env: DEV
 
 ingress:
@@ -44,7 +52,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: chart-example.local
+    - host: order-service-example.local
       paths:
         - path: /
           pathType: ImplementationSpecific
@@ -65,7 +73,6 @@ resources:
     cpu: 100m
     memory: 128Mi
 
-
 livenessProbe:
   httpGet:
     path: /
@@ -77,39 +84,10 @@ readinessProbe:
 
 autoscaling:
   enabled: true
-  minReplicas: 1
-  maxReplicas: 2
+  minReplicas: 2
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
-
-behavior:
-  scaleDown: 
-    policies: 
-    - type: Pods 
-      value: 1 
-      periodSeconds: 60 
-    - type: Percent
-      value: 10 
-      periodSeconds: 60
-    selectPolicy: Max 
-    stabilizationWindowSeconds: 300 
-  scaleUp: 
-    policies:
-    - type: Pods
-      value: 1 
-      periodSeconds: 60
-    - type: Percent
-      value: 10 
-      periodSeconds: 60
-    selectPolicy: Max
-    stabilizationWindowSeconds: 300
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}  
-
 
 # Additional volumes on the output Deployment definition.
 volumes: []
@@ -124,17 +102,19 @@ volumeMounts: []
 #   mountPath: "/etc/foo"
 #   readOnly: true
 
-envVars: {}
+nodeSelector: {}
 
-podAnnotations: {}
+tolerations: []
 
-podLabels: {}
+affinity: {}
+# podAffinity: {}
+# podAntiAffinity: {}
 
-# image:
-#   repository: nginx
-#   pullPolicy: IfNotPresent
-#   # Overrides the image tag whose default is the chart appVersion.
-#   tag: ""
 
-# nameOverride: ""
-# fullnameOverride: ""
+envVars:
+  KEY_A: order-serviceA
+  KEY_B: order-serviceB
+  KEY_JSON: '{"name": "c", "d": "d1"}'
+  KEY_MUTL: |
+    color.good=purpleA
+    color.bad=yellowA

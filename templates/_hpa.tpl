@@ -1,8 +1,11 @@
+{{- define "chart-demo.hpaTemplate" -}}
+
 {{- if .Values.autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ include "chart-demo.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     {{- include "chart-demo.labels" . | nindent 4 }}
 spec:
@@ -29,4 +32,11 @@ spec:
           type: Utilization
           averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
+  {{- with .Values.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+
+
 {{- end }}

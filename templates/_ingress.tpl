@@ -1,3 +1,5 @@
+{{- define "chart-demo.ingressTemplate" -}}
+
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "chart-demo.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
@@ -16,6 +18,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     {{- include "chart-demo.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
@@ -58,4 +61,6 @@ spec:
               {{- end }}
           {{- end }}
     {{- end }}
+{{- end }}
+
 {{- end }}
