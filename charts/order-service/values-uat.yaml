@@ -1,0 +1,10 @@
+image:
+  repository: order-service
+  tag: uat-1.0
+
+podLabels:
+  app: order-service
+  release-variant: uat
+
+config:
+  env: uat

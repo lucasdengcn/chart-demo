@@ -1,0 +1,621 @@
+---
+# Source: order-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ordersvc-prod-sa
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-0.1.0
+    app.kubernetes.io/name: ordersvc
+    app.kubernetes.io/instance: ordersvc-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: order-service/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ordersvc-prod-config
+  namespace: demo-prod
+data:
+  SV_NAME: "order-service"
+  SV_VERSION: "0.1.0"
+  SV_APP_PORT: "80"
+  SV_NODE_ENV: "DEV"
+  KEY_A: "order-serviceA"
+  KEY_B: "order-serviceB"
+  KEY_JSON: "{\"name\": \"c\", \"d\": \"d1\"}"
+  KEY_MUTL: "color.good=purpleA\ncolor.bad=yellowA\n"
+  env: "prod"
+---
+# Source: order-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordersvc-prod-svc
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-0.1.0
+    app.kubernetes.io/name: ordersvc
+    app.kubernetes.io/instance: ordersvc-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: ordersvc
+    app.kubernetes.io/instance: ordersvc-prod-1.16.0
+---
+# Source: order-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordersvc-prod-deploy
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-0.1.0
+    app.kubernetes.io/name: ordersvc
+    app.kubernetes.io/instance: ordersvc-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ordersvc
+      app.kubernetes.io/instance: ordersvc-prod-1.16.0
+  template:
+    metadata:
+      namespace: demo-prod
+      annotations:
+        checksum/config: 81d526f46e7ea91e121b53d5130c3535a10dfdec1a2b7d534b20cab729c7bf5b
+      labels:
+        helm.sh/chart: ordersvc-0.1.0
+        app.kubernetes.io/name: ordersvc
+        app.kubernetes.io/instance: ordersvc-prod-1.16.0
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+        app: order-service
+        app-domain: order-service
+        release-variant: prod
+    spec:
+      serviceAccountName: ordersvc-prod-sa
+      securityContext:
+        {}
+      containers:
+        - name: order-service
+          securityContext:
+            {}
+          image: "order-service:prod-1.0"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - configMapRef:
+              name: ordersvc-prod-config
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["order-service"]
+            topologyKey: "kubernetes.io/hostname"
+---
+# Source: order-service/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ordersvc-prod-hpa
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-0.1.0
+    app.kubernetes.io/name: ordersvc
+    app.kubernetes.io/instance: ordersvc-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ordersvc-prod-deploy
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleDown:
+      policies:
+      - periodSeconds: 60
+        type: Pods
+        value: 1
+      - periodSeconds: 60
+        type: Percent
+        value: 10
+      selectPolicy: Max
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      policies:
+      - periodSeconds: 60
+        type: Pods
+        value: 1
+      - periodSeconds: 60
+        type: Percent
+        value: 10
+      selectPolicy: Max
+      stabilizationWindowSeconds: 300
+---
+# Source: order-service/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ordersvc-prod-ingress
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-0.1.0
+    app.kubernetes.io/name: ordersvc
+    app.kubernetes.io/instance: ordersvc-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "order-service-example.local"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ordersvc-prod-svc
+                port:
+                  number: 80
+
+---
+# Source: order-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ordersvc-green-prod-sa
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-green-0.1.0
+    app.kubernetes.io/name: ordersvc-green
+    app.kubernetes.io/instance: ordersvc-green-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: order-service/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ordersvc-green-prod-config
+  namespace: demo-prod
+data:
+  SV_NAME: "order-service"
+  SV_VERSION: "0.1.0"
+  SV_APP_PORT: "80"
+  SV_NODE_ENV: "DEV"
+  KEY_A: "order-serviceA"
+  KEY_B: "order-serviceB"
+  KEY_JSON: "{\"name\": \"c\", \"d\": \"d1\"}"
+  KEY_MUTL: "color.good=purpleA\ncolor.bad=yellowA\n"
+  env: "prod"
+---
+# Source: order-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordersvc-green-prod-svc
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-green-0.1.0
+    app.kubernetes.io/name: ordersvc-green
+    app.kubernetes.io/instance: ordersvc-green-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: ordersvc-green
+    app.kubernetes.io/instance: ordersvc-green-prod-1.16.0
+---
+# Source: order-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordersvc-green-prod-deploy
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-green-0.1.0
+    app.kubernetes.io/name: ordersvc-green
+    app.kubernetes.io/instance: ordersvc-green-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ordersvc-green
+      app.kubernetes.io/instance: ordersvc-green-prod-1.16.0
+  template:
+    metadata:
+      namespace: demo-prod
+      annotations:
+        checksum/config: cf045a23f1d99f80b2240ecacb5ab4fd265f3a31f547ec65bd81a42ff9cd6ff5
+      labels:
+        helm.sh/chart: ordersvc-green-0.1.0
+        app.kubernetes.io/name: ordersvc-green
+        app.kubernetes.io/instance: ordersvc-green-prod-1.16.0
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+        app: order-service
+        app-domain: order-service
+        release-variant: prod-green
+    spec:
+      serviceAccountName: ordersvc-green-prod-sa
+      securityContext:
+        {}
+      containers:
+        - name: order-service
+          securityContext:
+            {}
+          image: "order-service:prod-1.0-green"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - configMapRef:
+              name: ordersvc-green-prod-config
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["order-service"]
+            topologyKey: "kubernetes.io/hostname"
+---
+# Source: order-service/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ordersvc-green-prod-hpa
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-green-0.1.0
+    app.kubernetes.io/name: ordersvc-green
+    app.kubernetes.io/instance: ordersvc-green-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ordersvc-green-prod-deploy
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleDown:
+      policies:
+      - periodSeconds: 60
+        type: Pods
+        value: 1
+      - periodSeconds: 60
+        type: Percent
+        value: 10
+      selectPolicy: Max
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      policies:
+      - periodSeconds: 60
+        type: Pods
+        value: 1
+      - periodSeconds: 60
+        type: Percent
+        value: 10
+      selectPolicy: Max
+      stabilizationWindowSeconds: 300
+---
+# Source: order-service/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ordersvc-green-prod-ingress
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: ordersvc-green-0.1.0
+    app.kubernetes.io/name: ordersvc-green
+    app.kubernetes.io/instance: ordersvc-green-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "order-service-example.local"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ordersvc-green-prod-svc
+                port:
+                  number: 80
+
+---
+# Source: order-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: order-hk-prod-sa
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: order-hk-0.1.0
+    app.kubernetes.io/name: order-hk
+    app.kubernetes.io/instance: order-hk-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: order-service/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-hk-prod-config
+  namespace: demo-prod
+data:
+  SV_NAME: "order-service"
+  SV_VERSION: "0.1.0"
+  SV_APP_PORT: "80"
+  SV_NODE_ENV: "DEV"
+  KEY_A: "order-serviceA"
+  KEY_B: "order-serviceB"
+  KEY_JSON: "{\"name\": \"c\", \"d\": \"d1\"}"
+  KEY_MUTL: "color.good=purpleA\ncolor.bad=yellowA\n"
+  env: "prod"
+---
+# Source: order-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-hk-prod-svc
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: order-hk-0.1.0
+    app.kubernetes.io/name: order-hk
+    app.kubernetes.io/instance: order-hk-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: order-hk
+    app.kubernetes.io/instance: order-hk-prod-1.16.0
+---
+# Source: order-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-hk-prod-deploy
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: order-hk-0.1.0
+    app.kubernetes.io/name: order-hk
+    app.kubernetes.io/instance: order-hk-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order-hk
+      app.kubernetes.io/instance: order-hk-prod-1.16.0
+  template:
+    metadata:
+      namespace: demo-prod
+      annotations:
+        checksum/config: 9fd7660c50a7e074326fbe6d90432182966f972dc86a77be993870175df661d5
+      labels:
+        helm.sh/chart: order-hk-0.1.0
+        app.kubernetes.io/name: order-hk
+        app.kubernetes.io/instance: order-hk-prod-1.16.0
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+        app: order-service
+        app-domain: order-service
+        release-variant: prod-hk
+    spec:
+      serviceAccountName: order-hk-prod-sa
+      securityContext:
+        {}
+      containers:
+        - name: order-service
+          securityContext:
+            {}
+          image: "order-service:prod-1.0-hk"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - configMapRef:
+              name: order-hk-prod-config
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["order-service"]
+            topologyKey: "kubernetes.io/hostname"
+---
+# Source: order-service/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: order-hk-prod-hpa
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: order-hk-0.1.0
+    app.kubernetes.io/name: order-hk
+    app.kubernetes.io/instance: order-hk-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: order-hk-prod-deploy
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleDown:
+      policies:
+      - periodSeconds: 60
+        type: Pods
+        value: 1
+      - periodSeconds: 60
+        type: Percent
+        value: 10
+      selectPolicy: Max
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      policies:
+      - periodSeconds: 60
+        type: Pods
+        value: 1
+      - periodSeconds: 60
+        type: Percent
+        value: 10
+      selectPolicy: Max
+      stabilizationWindowSeconds: 300
+---
+# Source: order-service/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: order-hk-prod-ingress
+  namespace: demo-prod
+  labels:
+    helm.sh/chart: order-hk-0.1.0
+    app.kubernetes.io/name: order-hk
+    app.kubernetes.io/instance: order-hk-prod-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "order-service-example.local"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: order-hk-prod-svc
+                port:
+                  number: 80
+

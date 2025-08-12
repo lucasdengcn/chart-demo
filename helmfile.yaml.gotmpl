@@ -1,0 +1,48 @@
+environments:
+  dev:
+    values:
+      - environments/dev.yaml
+  sit:
+    values:
+      - environments/sit.yaml
+  uat:
+    values:
+      - environments/uat.yaml
+  staging:
+    values:
+      - environments/staging.yaml
+  prod:
+    values:
+      - environments/prod.yaml
+
+---
+
+releases:
+  - name: ordersvc
+    chart: ./charts/order-service
+    condition: order.enabled
+    values:
+      - ./charts/common/values.yaml
+      - ./charts/common/values-{{ .Environment.Name }}.yaml
+      - ./charts/order-service/values.yaml
+      - ./charts/order-service/values-{{ .Environment.Name }}.yaml
+
+  - name: ordersvc-green
+    chart: ./charts/order-service
+    condition: releaseVariants.green.enabled
+    values:
+      - ./charts/common/values.yaml
+      - ./charts/common/values-{{ .Environment.Name }}.yaml
+      - ./charts/order-service/values.yaml
+      - ./charts/order-service/values-{{ .Environment.Name }}.yaml
+      - ./charts/order-service/values-green.yaml
+
+  - name: order-hk
+    chart: ./charts/order-service
+    condition: releaseVariants.hk.enabled
+    values:
+      - ./charts/common/values.yaml
+      - ./charts/common/values-{{ .Environment.Name }}.yaml
+      - ./charts/order-service/values.yaml
+      - ./charts/order-service/values-{{ .Environment.Name }}.yaml
+      - ./charts/order-service/values-{{ .Environment.Name }}-hk.yaml

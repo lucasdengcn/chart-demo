@@ -1,0 +1,10 @@
+image:
+  repository: order-service
+  tag: sit-1.0
+
+podLabels:
+  app: order-service
+  release-variant: sit
+
+config:
+  env: sit

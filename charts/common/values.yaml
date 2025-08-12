@@ -1,12 +1,14 @@
-# Default values for order-service.
+# Default values for chart-demo.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.0"
+global:
+  namespace: demo-dev
+  replicaCount: 1
+  imagePullSecrets: []
+  # dev, sit, uat, staging, prod
+  # This is used to set the environment for the application.
+  env: dev
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -18,10 +20,6 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-
-podLabels:
-  app-domain: order-service
-  release-variant: blue
 
 podSecurityContext:
   {}
@@ -38,7 +36,7 @@ securityContext:
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8080
   env: DEV
 
 ingress:
@@ -49,7 +47,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: order-service-example.local
+    - host: chart-demo.local
       paths:
         - path: /
           pathType: ImplementationSpecific
@@ -81,10 +79,36 @@ readinessProbe:
 
 autoscaling:
   enabled: true
-  minReplicas: 2
-  maxReplicas: 5
+  minReplicas: 1
+  maxReplicas: 2
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
+
+behavior:
+  scaleDown:
+    policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    selectPolicy: Max
+    stabilizationWindowSeconds: 300
+  scaleUp:
+    policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    selectPolicy: Max
+    stabilizationWindowSeconds: 300
+
+nodeSelector: {}
+
+tolerations: []
 
 # Additional volumes on the output Deployment definition.
 volumes: []
@@ -99,25 +123,19 @@ volumeMounts: []
 #   mountPath: "/etc/foo"
 #   readOnly: true
 
-nodeSelector: {}
+# Additional environment variables to add to the pod
+config: {}
 
-tolerations: []
+# Additional environment variables to add to the pod
+greenConfig: {}
 
-podAffinity:
-  {}
-  # requiredDuringSchedulingIgnoredDuringExecution:
-  #   nodeSelectorTerms:
-  #   - matchExpressions:
-  #     - key: "kubernetes.io/os"
-  #       operator: In
-  #       values: Linux
+# Additional annotations to add to the pod
+podAnnotations: {}
 
-# stablized configs for order service
-config:
-  KEY_A: order-serviceA
-  KEY_B: order-serviceB
-  KEY_JSON: '{"name": "c", "d": "d1"}'
-  KEY_MUTL: |
-    color.good=purpleA
-    color.bad=yellowA
+# Additional labels to add to the pod
+podLabels:
+  app-domain: app-service
+  release-variant: blue
+
+podAffinity: {}
 

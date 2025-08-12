@@ -1,0 +1,10 @@
+image:
+  repository: order-service
+  tag: prod-1.0-hk
+
+podLabels:
+  app: order-service
+  release-variant: prod-hk
+
+config:
+  env: prod

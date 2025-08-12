@@ -1,0 +1,11 @@
+global:
+  namespace: demo-uat
+  replicaCount: 3
+  imagePullSecrets: []
+  # dev, sit, uat, staging, prod
+  # This is used to set the environment for the application.
+  env: uat
+
+ingress:
+  hosts:
+    - host: chart-demo-uat.local

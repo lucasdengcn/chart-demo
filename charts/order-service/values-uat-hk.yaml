@@ -1,0 +1,11 @@
+image:
+  repository: order-service
+  tag: uat-hk-1.0
+
+podLabels:
+  app: order-service
+  release-variant: uat-hk
+
+config:
+  env: uat
+  region: hk

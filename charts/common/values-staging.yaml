@@ -1,0 +1,11 @@
+global:
+  namespace: demo-staging
+  replicaCount: 3
+  imagePullSecrets: []
+  # dev, sit, uat, staging, prod
+  # This is used to set the environment for the application.
+  env: staging
+
+ingress:
+  hosts:
+    - host: chart-demo-staging.local

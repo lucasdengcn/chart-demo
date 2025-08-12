@@ -1,0 +1,17 @@
+image:
+  repository: order-service
+  tag: dev-1.0
+
+podLabels:
+  app-domain: order-service
+  release-variant: dev
+
+config:
+  env: dev
+
+ingress:
+  hosts:
+    - host: service-dev.local
+      paths:
+        - path: /orders
+          pathType: ImplementationSpecific

@@ -1,0 +1,13 @@
+env: sit
+
+order:
+  enabled: true
+
+payment:
+  enabled: true
+
+releaseVariants:
+  green:
+    enabled: false
+  hk:
+    enabled: false

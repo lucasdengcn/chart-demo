@@ -1,0 +1,11 @@
+image:
+  repository: order-service
+  tag: uat-sg-1.0
+
+podLabels:
+  app: order-service
+  release-variant: uat-sg
+
+config:
+  env: uat
+  region: sg

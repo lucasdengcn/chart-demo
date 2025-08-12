@@ -1,0 +1,18 @@
+global:
+  namespace: demo-dev
+  replicaCount: 1
+  imagePullSecrets: []
+  # dev, sit, uat, staging, prod
+  # This is used to set the environment for the application.
+  env: dev
+
+ingress:
+  hosts:
+    - host: chart-demo-dev.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+podLabels:
+  app-domain: app-service
+  release-variant: blue

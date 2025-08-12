@@ -1,0 +1,15 @@
+env: staging
+
+order:
+  enabled: true
+
+payment:
+  enabled: true
+
+releaseVariants:
+  green:
+    enabled: false
+  hk:
+    enabled: true
+  sg:
+    enabled: true

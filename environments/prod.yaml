@@ -1,0 +1,15 @@
+env: prod
+
+order:
+  enabled: true
+
+payment:
+  enabled: true
+
+releaseVariants:
+  green:
+    enabled: true
+  hk:
+    enabled: true
+  sg:
+    enabled: true

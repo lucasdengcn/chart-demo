@@ -13,3 +13,10 @@ helm template . --debug > debug.txt
 ```shell
 helm install --debug --dry-run .
 ```
+
+## Helmfile
+
+```shell
+helmfile -e dev template
+helmfile -e dev apply
+```

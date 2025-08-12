@@ -1,0 +1,11 @@
+global:
+  namespace: demo-prod
+  replicaCount: 3
+  imagePullSecrets: []
+  # dev, sit, uat, staging, prod
+  # This is used to set the environment for the application.
+  env: prod
+
+ingress:
+  hosts:
+    - host: chart-demo-prod.local

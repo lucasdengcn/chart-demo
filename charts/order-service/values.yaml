@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: nginx
+  repository: order-service
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "1.0"
@@ -19,10 +19,8 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations:
-  release-variant: blue
-
 podLabels:
+  app-domain: order-service
   release-variant: blue
 
 podSecurityContext:
@@ -105,8 +103,16 @@ nodeSelector: {}
 
 tolerations: []
 
-podAffinity: {}
+podAffinity:
+  {}
+  # requiredDuringSchedulingIgnoredDuringExecution:
+  #   nodeSelectorTerms:
+  #   - matchExpressions:
+  #     - key: "kubernetes.io/os"
+  #       operator: In
+  #       values: Linux
 
+# stablized configs for order service
 config:
   KEY_A: order-serviceA
   KEY_B: order-serviceB
@@ -114,3 +120,4 @@ config:
   KEY_MUTL: |
     color.good=purpleA
     color.bad=yellowA
+
