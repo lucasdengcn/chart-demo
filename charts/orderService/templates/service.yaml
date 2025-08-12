@@ -1,1 +1,1 @@
-{{ include "chart-demo.serviceTemplate" . }}
+{{ include "chart-tpl.serviceTemplate" . }}

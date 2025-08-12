@@ -1,12 +1,12 @@
-{{- define "chart-demo.serviceTemplate" -}}
+{{- define "chart-tpl.serviceTemplate" -}}
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "chart-demo.fullname" . }}
+  name: {{ include "chart-crd.serviceName" . }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "chart-demo.labels" . | nindent 4 }}
+    {{- include "chart-crd.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -15,6 +15,6 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "chart-demo.selectorLabels" . | nindent 4 }}
+    {{- include "chart-crd.selectorLabels" . | nindent 4 }}
 
 {{- end }}

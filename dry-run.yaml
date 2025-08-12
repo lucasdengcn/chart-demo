@@ -1,0 +1,550 @@
+---
+# Source: chart-demo/charts/ordersvr-blue/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ordersvr-blue-dev-sa
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-blue-0.1.0
+    app.kubernetes.io/name: ordersvr-blue
+    app.kubernetes.io/instance: ordersvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: chart-demo/charts/ordersvr-green/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ordersvr-green-dev-sa
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-green-0.1.0
+    app.kubernetes.io/name: ordersvr-green
+    app.kubernetes.io/instance: ordersvr-green-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: chart-demo/charts/paymentsvr-blue/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: paymentsvr-blue-dev-sa
+  namespace: demo
+  labels:
+    helm.sh/chart: paymentsvr-blue-0.1.0
+    app.kubernetes.io/name: paymentsvr-blue
+    app.kubernetes.io/instance: paymentsvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: chart-demo/charts/ordersvr-blue/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ordersvr-blue-dev-config
+  namespace: demo
+data:
+  SV_NAME: "ordersvr-blue"
+  SV_VERSION: "0.1.0"
+  SV_APP_PORT: "80"
+  SV_NODE_ENV: "DEV"
+  KEY_A: "order-serviceA"
+  KEY_B: "order-serviceB"
+  KEY_JSON: "{\"name\": \"c\", \"d\": \"d1\"}"
+  KEY_MUTL: "color.good=purpleA\ncolor.bad=yellowA\n"
+---
+# Source: chart-demo/charts/ordersvr-green/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ordersvr-green-dev-config
+  namespace: demo
+data:
+  SV_NAME: "ordersvr-green"
+  SV_VERSION: "0.1.0"
+  SV_APP_PORT: "80"
+  SV_NODE_ENV: "DEV"
+  KEY_A: "order-serviceA"
+  KEY_B: "order-serviceB"
+  KEY_JSON: "{\"name\": \"c\", \"d\": \"d1\"}"
+  KEY_MUTL: "color.good=purpleA\ncolor.bad=yellowA\n"
+  env: "GREEN"
+---
+# Source: chart-demo/charts/paymentsvr-blue/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paymentsvr-blue-dev-config
+  namespace: demo
+data:
+  SV_NAME: "paymentsvr-blue"
+  SV_VERSION: "0.1.0"
+  SV_APP_PORT: "80"
+  SV_NODE_ENV: "DEV"
+  KEY_A: "order-serviceA"
+  KEY_B: "order-serviceB"
+  KEY_JSON: "{\"name\": \"c\", \"d\": \"d1\"}"
+  KEY_MUTL: "color.good=purpleA\ncolor.bad=yellowA\n"
+---
+# Source: chart-demo/charts/ordersvr-blue/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordersvr-blue-dev-svc
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-blue-0.1.0
+    app.kubernetes.io/name: ordersvr-blue
+    app.kubernetes.io/instance: ordersvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: ordersvr-blue
+    app.kubernetes.io/instance: ordersvr-blue-dev-1.16.0
+---
+# Source: chart-demo/charts/ordersvr-green/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordersvr-green-dev-svc
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-green-0.1.0
+    app.kubernetes.io/name: ordersvr-green
+    app.kubernetes.io/instance: ordersvr-green-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: ordersvr-green
+    app.kubernetes.io/instance: ordersvr-green-dev-1.16.0
+---
+# Source: chart-demo/charts/paymentsvr-blue/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: paymentsvr-blue-dev-svc
+  namespace: demo
+  labels:
+    helm.sh/chart: paymentsvr-blue-0.1.0
+    app.kubernetes.io/name: paymentsvr-blue
+    app.kubernetes.io/instance: paymentsvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: paymentsvr-blue
+    app.kubernetes.io/instance: paymentsvr-blue-dev-1.16.0
+---
+# Source: chart-demo/charts/ordersvr-blue/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordersvr-blue-dev-deploy
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-blue-0.1.0
+    app.kubernetes.io/name: ordersvr-blue
+    app.kubernetes.io/instance: ordersvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ordersvr-blue
+      app.kubernetes.io/instance: ordersvr-blue-dev-1.16.0
+  template:
+    metadata:
+      namespace: demo
+      annotations:
+        checksum/config: aeac1a2735f97140b32a1c9ef60946ec60b5a8c6aa685a6f99ee46a9462c4878
+      labels:
+        helm.sh/chart: ordersvr-blue-0.1.0
+        app.kubernetes.io/name: ordersvr-blue
+        app.kubernetes.io/instance: ordersvr-blue-dev-1.16.0
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+        app-domain: order-service
+        release-variant: green
+    spec:
+      serviceAccountName: ordersvr-blue-dev-sa
+      securityContext:
+        {}
+      containers:
+        - name: ordersvr-blue
+          securityContext:
+            {}
+          image: "nginx:1.0"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - configMapRef:
+              name: ordersvr-blue-dev-config
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["ordersvr-blue"]
+            topologyKey: "kubernetes.io/hostname"
+---
+# Source: chart-demo/charts/ordersvr-green/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordersvr-green-dev-deploy
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-green-0.1.0
+    app.kubernetes.io/name: ordersvr-green
+    app.kubernetes.io/instance: ordersvr-green-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ordersvr-green
+      app.kubernetes.io/instance: ordersvr-green-dev-1.16.0
+  template:
+    metadata:
+      namespace: demo
+      annotations:
+        checksum/config: c59b9d90131377693504d0d73bd69a70cbf269662c21201dddcbbc5263128fdd
+      labels:
+        helm.sh/chart: ordersvr-green-0.1.0
+        app.kubernetes.io/name: ordersvr-green
+        app.kubernetes.io/instance: ordersvr-green-dev-1.16.0
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+        app-domain: order-service
+        release-variant: green
+    spec:
+      serviceAccountName: ordersvr-green-dev-sa
+      securityContext:
+        {}
+      containers:
+        - name: ordersvr-green
+          securityContext:
+            {}
+          image: "nginx:green-1.0"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - configMapRef:
+              name: ordersvr-green-dev-config
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["ordersvr-green"]
+            topologyKey: "kubernetes.io/hostname"
+---
+# Source: chart-demo/charts/paymentsvr-blue/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paymentsvr-blue-dev-deploy
+  namespace: demo
+  labels:
+    helm.sh/chart: paymentsvr-blue-0.1.0
+    app.kubernetes.io/name: paymentsvr-blue
+    app.kubernetes.io/instance: paymentsvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: paymentsvr-blue
+      app.kubernetes.io/instance: paymentsvr-blue-dev-1.16.0
+  template:
+    metadata:
+      namespace: demo
+      annotations:
+        checksum/config: 0d02ba58b4d712ced99094303a53650c1be8752e02de318d22440e90fcee7fd5
+        release-variant: blue
+      labels:
+        helm.sh/chart: paymentsvr-blue-0.1.0
+        app.kubernetes.io/name: paymentsvr-blue
+        app.kubernetes.io/instance: paymentsvr-blue-dev-1.16.0
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+        release-variant: blue
+    spec:
+      serviceAccountName: paymentsvr-blue-dev-sa
+      securityContext:
+        {}
+      containers:
+        - name: paymentsvr-blue
+          securityContext:
+            {}
+          image: "nginx:1.0"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - configMapRef:
+              name: paymentsvr-blue-dev-config
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["paymentsvr-blue"]
+            topologyKey: "kubernetes.io/hostname"
+---
+# Source: chart-demo/charts/ordersvr-blue/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ordersvr-blue-dev-hpa
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-blue-0.1.0
+    app.kubernetes.io/name: ordersvr-blue
+    app.kubernetes.io/instance: ordersvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ordersvr-blue-dev-deploy
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# Source: chart-demo/charts/ordersvr-green/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ordersvr-green-dev-hpa
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-green-0.1.0
+    app.kubernetes.io/name: ordersvr-green
+    app.kubernetes.io/instance: ordersvr-green-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ordersvr-green-dev-deploy
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# Source: chart-demo/charts/paymentsvr-blue/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: paymentsvr-blue-dev-hpa
+  namespace: demo
+  labels:
+    helm.sh/chart: paymentsvr-blue-0.1.0
+    app.kubernetes.io/name: paymentsvr-blue
+    app.kubernetes.io/instance: paymentsvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: paymentsvr-blue-dev-deploy
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# Source: chart-demo/charts/ordersvr-blue/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ordersvr-blue-dev-ingress
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-blue-0.1.0
+    app.kubernetes.io/name: ordersvr-blue
+    app.kubernetes.io/instance: ordersvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "order-service-example.local"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ordersvr-blue-dev-svc
+                port:
+                  number: 80
+---
+# Source: chart-demo/charts/ordersvr-green/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ordersvr-green-dev-ingress
+  namespace: demo
+  labels:
+    helm.sh/chart: ordersvr-green-0.1.0
+    app.kubernetes.io/name: ordersvr-green
+    app.kubernetes.io/instance: ordersvr-green-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "order-service-example.local"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ordersvr-green-dev-svc
+                port:
+                  number: 80
+---
+# Source: chart-demo/charts/paymentsvr-blue/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: paymentsvr-blue-dev-ingress
+  namespace: demo
+  labels:
+    helm.sh/chart: paymentsvr-blue-0.1.0
+    app.kubernetes.io/name: paymentsvr-blue
+    app.kubernetes.io/instance: paymentsvr-blue-dev-1.16.0
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "order-service-example.local"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: paymentsvr-blue-dev-svc
+                port:
+                  number: 80

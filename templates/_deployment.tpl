@@ -1,19 +1,19 @@
-{{- define "chart-demo.deploymentTemplate" -}}
+{{- define "chart-tpl.deploymentTemplate" -}}
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "chart-demo.fullname" . }}
+  name: {{ include "chart-crd.deployName" . }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "chart-demo.labels" . | nindent 4 }}
+    {{- include "chart-crd.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.global.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "chart-demo.selectorLabels" . | nindent 6 }}
+      {{- include "chart-crd.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       namespace: {{ .Values.global.namespace }}
@@ -23,7 +23,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "chart-demo.labels" . | nindent 8 }}
+        {{- include "chart-crd.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -32,7 +32,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "chart-demo.serviceAccountName" . }}
+      serviceAccountName: {{ include "chart-crd.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -43,7 +43,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
           - configMapRef:
-              name: {{ include "chart-demo.fullname" . }}-configmap
+              name: {{ include "chart-crd.configMapName" . }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -73,7 +73,7 @@ spec:
               matchExpressions:
               - key: app.kubernetes.io/name
                 operator: In
-                values: [{{ include "chart-demo.name" . | quote }}]
+                values: [{{ include "chart-crd.name" . | quote }}]
             topologyKey: "kubernetes.io/hostname"
       {{- with .Values.podAffinity }}
         podAffinity:

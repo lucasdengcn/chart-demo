@@ -1,18 +1,18 @@
-{{- define "chart-demo.hpaTemplate" -}}
+{{- define "chart-tpl.hpaTemplate" -}}
 
 {{- if .Values.autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "chart-demo.fullname" . }}
+  name: {{ include "chart-crd.hpaName" . }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "chart-demo.labels" . | nindent 4 }}
+    {{- include "chart-crd.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "chart-demo.fullname" . }}
+    name: {{ include "chart-crd.deployName" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:

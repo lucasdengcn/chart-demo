@@ -1,1 +1,1 @@
-{{ include "chart-demo.hpaTemplate" . }}
+{{ include "chart-tpl.hpaTemplate" . }}

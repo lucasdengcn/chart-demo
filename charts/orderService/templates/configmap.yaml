@@ -1,1 +1,1 @@
-{{ include "chart-demo.configmapTemplate" . }}
+{{ include "chart-tpl.configmapTemplate" . }}

@@ -6,9 +6,9 @@ global:
   namespace: demo
   replicaCount: 1
   imagePullSecrets: []
-
-nameOverride: ""
-fullnameOverride: ""
+  # dev, sit, uat, staging, prod
+  # This is used to set the environment for the application.
+  env: dev
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -21,10 +21,12 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: "demo"
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -40,7 +42,8 @@ service:
 ingress:
   enabled: true
   className: ""
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
@@ -65,7 +68,6 @@ resources:
     cpu: 100m
     memory: 128Mi
 
-
 livenessProbe:
   httpGet:
     path: /
@@ -83,24 +85,24 @@ autoscaling:
   targetMemoryUtilizationPercentage: 80
 
 behavior:
-  scaleDown: 
-    policies: 
-    - type: Pods 
-      value: 1 
-      periodSeconds: 60 
-    - type: Percent
-      value: 10 
-      periodSeconds: 60
-    selectPolicy: Max 
-    stabilizationWindowSeconds: 300 
-  scaleUp: 
+  scaleDown:
     policies:
-    - type: Pods
-      value: 1 
-      periodSeconds: 60
-    - type: Percent
-      value: 10 
-      periodSeconds: 60
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    selectPolicy: Max
+    stabilizationWindowSeconds: 300
+  scaleUp:
+    policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      - type: Percent
+        value: 10
+        periodSeconds: 60
     selectPolicy: Max
     stabilizationWindowSeconds: 300
 
@@ -121,10 +123,31 @@ volumeMounts: []
 #   mountPath: "/etc/foo"
 #   readOnly: true
 
-envVars: {}
+# Additional environment variables to add to the pod
+config: {}
 
+# Additional environment variables to add to the pod
+greenConfig: {}
+
+# Additional annotations to add to the pod
 podAnnotations: {}
 
+# Additional labels to add to the pod
 podLabels: {}
 
 podAffinity: {}
+
+# Additional labels to add to the pod
+ordersvr-blue:
+  podLabels:
+    app-domain: order-service
+    release-variant: blue
+
+ordersvr-green:
+  podLabels:
+    app-domain: order-service
+    release-variant: green
+  greenConfig:
+    env: GREEN
+  image:
+    tag: "green-1.0"

@@ -1,1 +1,1 @@
-{{ include "chart-demo.ingressTemplate" . }}
+{{ include "chart-tpl.ingressTemplate" . }}

@@ -24,15 +24,17 @@ version: 0.1.0
 appVersion: "1.16.0"
 
 dependencies:
-  - alias: order-service-blue
-    name: orderService
+  - name: orderService
+    alias: ordersvr-blue
     version: "0.1.0"
     repository: file://./charts/orderService
-  - alias: order-service-green
-    name: orderService
+
+  - name: orderService
+    alias: ordersvr-green
     version: "0.1.0"
     repository: file://./charts/orderService
-  - alias: payment-service-blue
-    name: paymentService
+
+  - name: paymentService
+    alias: paymentsvr-blue
     version: "0.1.0"
     repository: file://./charts/paymentService

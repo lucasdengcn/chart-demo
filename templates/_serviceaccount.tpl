@@ -1,13 +1,13 @@
-{{- define "chart-demo.serviceAccountTemplate" -}}
+{{- define "chart-tpl.serviceAccountTemplate" -}}
 
 {{- if .Values.serviceAccount.create -}}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ include "chart-demo.serviceAccountName" . }}
+  name: {{ include "chart-crd.serviceAccountName" . }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "chart-demo.labels" . | nindent 4 }}
+    {{- include "chart-crd.labels" . | nindent 4 }}
   {{- with .Values.serviceAccount.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

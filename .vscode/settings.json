@@ -1,0 +1,8 @@
+{
+  "[helm]": {
+    "editor.formatOnSave": false
+  },
+  "[yaml]": {
+    "editor.formatOnSave": false
+  }
+}

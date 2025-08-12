@@ -1,8 +1,7 @@
-{{- define "chart-demo.ingressTemplate" -}}
+{{- define "chart-tpl.ingressTemplate" -}}
 
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "chart-demo.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
+
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
   {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
   {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
@@ -15,12 +14,14 @@ apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
 {{- end }}
+{{- $svcName := include "chart-crd.serviceName" . }}
+{{- $svcPort := .Values.service.port }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "chart-crd.ingressName" . }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "chart-demo.labels" . | nindent 4 }}
+    {{- include "chart-crd.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -52,11 +53,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $fullName }}
+                name: {{ $svcName }}
                 port:
                   number: {{ $svcPort }}
               {{- else }}
-              serviceName: {{ $fullName }}
+              serviceName: {{ $svcName }}
               servicePort: {{ $svcPort }}
               {{- end }}
           {{- end }}
