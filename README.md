@@ -5,18 +5,17 @@ Using one Helm Chart template to manage all microservices CRDs.
 ## Template debug
 
 ```shell
-helm template . --debug > debug.txt
+helmfile -e dev template > debug.yaml
 ```
 
 ## Dry run
 
 ```shell
-helm install --debug --dry-run .
+helmfile -e dev template > dry-run-dev.yaml
 ```
 
-## Helmfile
+## Apply
 
 ```shell
-helmfile -e dev template
 helmfile -e dev apply
 ```
