@@ -2,17 +2,30 @@
 
 Using one Helm Chart template to manage all microservices CRDs.
 
+## Key Design Features
+
+- **Common Template Pattern** : uses a common chart with reusable templates.
+
+- **Environment Management** : Multiple environments (dev, sit, uat, staging, prod) are managed through environment-specific values files.
+
+- **Regional Deployment Support** : supports regional-specific deployments (e.g., HK region) through specialized values files.
+
+- **Blue/Green Deployment** : supports blue/green deployment patterns.
+
+- **Helmfile Orchestration** : manage multiple releases and environments, providing a higher-level abstraction over Helm.
+
+- **Templating System** : uses Helm's templating system extensively, to maintain consistency across resources.
+
+- **Microservices Architecture** : support multiple microservices (e.g. order-service, payment-service) with shared configuration patterns.
+
+## Architecture
+
+![design](./design.png)
+
 ## Prerequisites
 
 - Helm
 - Helmfile
-
-## Features
-
-- One Helm Chart template to manage all microservices CRDs.
-- Helmfile to manage multiple environments (dev, staging, prod) for each microservice.
-- Helmfile to manage multiple microservices for each environment.
-- Supporting Regional-Specific deployment model
 
 ## Template debug
 
